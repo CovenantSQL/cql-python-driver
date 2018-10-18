@@ -201,6 +201,9 @@ class Connection(object):
         if isinstance(sql, text_type):
             sql = sql.encode(self.encoding)
 
+        if isinstance(sql, bytearray):
+            sql = bytes(sql)
+
         # drop last command return
         if self._resp is not None:
             self._resp = None
@@ -265,7 +268,7 @@ class CovenantSQLResult(object):
         :type connection: Connection
         """
         self.connection = connection
-        self.affected_rows = None
+        self.affected_rows = 0
         self.insert_id = None
         self.warning_count = 0
         self.message = None

@@ -8,6 +8,8 @@ requests = "*"
 
 [dev-packages]
 pylint = "*"
+"unittest2" = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.7"

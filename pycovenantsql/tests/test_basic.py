@@ -45,25 +45,25 @@ class CursorTest(base.PyCovenantSQLTestCase):
 
         # cursor._executed must bee "insert into test (data) values (0),(1),(2),(3),(4),(5),(6),(7),(8),(9)"
         # list args
-        #data = range(10)
-        #cursor.executemany("insert into test (data) values (%s)", data)
-        #self.assertTrue(cursor._executed.endswith(b",(7),(8),(9)"), 'execute many with %s not in one query')
+        data = range(10)
+        cursor.executemany("insert into test (data) values (%s)", data)
+        self.assertTrue(cursor._executed.endswith(b",(7),(8),(9)"), 'execute many with %s not in one query')
 
-        ## dict args
-        #data_dict = [{'data': i} for i in range(10)]
-        #cursor.executemany("insert into test (data) values (%(data)s)", data_dict)
-        #self.assertTrue(cursor._executed.endswith(b",(7),(8),(9)"), 'execute many with %(data)s not in one query')
+        # dict args
+        data_dict = [{'data': i} for i in range(10)]
+        cursor.executemany("insert into test (data) values (%(data)s)", data_dict)
+        self.assertTrue(cursor._executed.endswith(b",(7),(8),(9)"), 'execute many with %(data)s not in one query')
 
         # %% in column set
-        #cursor.execute("""\
-        #    CREATE TABLE percent_test (
-        #        `A%` INTEGER,
-        #        `B%` INTEGER)""")
-        #try:
-        #    q = "INSERT INTO percent_test (`A%%`, `B%%`) VALUES (%s, %s)"
-        #    self.assertIsNotNone(pycovenantsql.cursors.RE_INSERT_VALUES.match(q))
-        #    cursor.executemany(q, [(3, 4), (5, 6)])
-        #    self.assertTrue(cursor._executed.endswith(b"(3, 4),(5, 6)"), "executemany with %% not in one query")
-        #finally:
-        #    cursor.execute("DROP TABLE IF EXISTS percent_test")
+        cursor.execute("""\
+            CREATE TABLE percent_test (
+                `A%` INTEGER,
+                `B%` INTEGER)""")
+        try:
+            q = "INSERT INTO percent_test (`A%%`, `B%%`) VALUES (%s, %s)"
+            self.assertIsNotNone(pycovenantsql.cursors.RE_INSERT_VALUES.match(q))
+            cursor.executemany(q, [(3, 4), (5, 6)])
+            self.assertTrue(cursor._executed.endswith(b"(3, 4),(5, 6)"), "executemany with %% not in one query")
+        finally:
+            cursor.execute("DROP TABLE IF EXISTS percent_test")
 
