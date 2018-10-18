@@ -1,5 +1,6 @@
 import sys
 from ._compat import PY2
+from .converters import escape_dict, escape_sequence, escape_string
 from .constants import FIELD_TYPE
 
 VERSION = (0, 0, 1, None)

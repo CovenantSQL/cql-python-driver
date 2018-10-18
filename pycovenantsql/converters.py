@@ -375,3 +375,4 @@ encoders = {
 
 if not PY2 or JYTHON or IRONPYTHON:
     encoders[bytes] = escape_bytes
+

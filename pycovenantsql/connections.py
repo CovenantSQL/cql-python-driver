@@ -31,9 +31,6 @@ class Connection(object):
     :param connect_timeout: Timeout before throwing an exception when connecting.
         (default: 10, min: 1, max: 31536000)
     :param read_default_group: Group to read from in the configuration file.
-    :param autocommit: Autocommit mode. None means use server default. (default: False)
-    :param defer_connect: Don't explicitly connect on contruction - wait for connect call.
-        (default: False)
 
     See `Connection <https://www.python.org/dev/peps/pep-0249/#connection-objects>`_ in the
     specification.
@@ -44,9 +41,7 @@ class Connection(object):
 
     def __init__(self, dsn=None, host=None, port=0, key=None, database=None,
                  https_pem=None, read_default_file=None,
-                 cursorclass=Cursor, init_command=None,
-                 connect_timeout=10, read_default_group=None,
-                 autocommit=False, defer_connect=False,
+                 cursorclass=Cursor, connect_timeout=10, read_default_group=None,
                  read_timeout=None, write_timeout=None):
 
         self._resp = None
@@ -114,17 +109,10 @@ class Connection(object):
         self._result = None
         self._affected_rows = 0
 
-        #: specified autocommit mode. None means use server default.
-        self.autocommit_mode = autocommit
-
-        if defer_connect:
-            self._sock = None
-        else:
-            self.connect()
+        self.connect()
 
     def connect(self):
         self._closed = False
-        self._sock = True
         self._execute_command("select 1;")
         self._read_ok_packet()
 
@@ -139,7 +127,6 @@ class Connection(object):
         """
         if self._closed:
             raise err.Error("Already closed")
-        self._sock = None
         self._closed = True
 
     @property
@@ -154,8 +141,9 @@ class Connection(object):
         See `Connection.commit() <https://www.python.org/dev/peps/pep-0249/#commit>`_
         in the specification.
         """
-        self._execute_command("COMMIT")
-        self._read_ok_packet()
+        return
+        #self._execute_command("COMMIT")
+        #self._read_ok_packet()
 
     def rollback(self):
         """
@@ -164,8 +152,9 @@ class Connection(object):
         See `Connection.rollback() <https://www.python.org/dev/peps/pep-0249/#rollback>`_
         in the specification.
         """
-        self._execute_command("ROLLBACK")
-        self._read_ok_packet()
+        return
+        #self._execute_command("ROLLBACK")
+        #self._read_ok_packet()
 
 
     def cursor(self, cursor=None):
@@ -261,6 +250,17 @@ class Connection(object):
             raise err.OperationalError("Proxy return false", self._resp.reason)
 
         return self.server_status
+
+    def __enter__(self):
+        """Context manager that returns a Cursor"""
+        return self.cursor()
+
+    def __exit__(self, exc, value, traceback):
+        """On successful exit, commit. On exception, rollback"""
+        if exc:
+            self.rollback()
+        else:
+            self.commit()
 
 class CovenantSQLResult(object):
     def __init__(self, connection):
