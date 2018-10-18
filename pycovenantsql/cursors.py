@@ -112,12 +112,12 @@ class Cursor(object):
         if isinstance(args, (tuple, list)):
             if PY2:
                 args = tuple(map(ensure_bytes, args))
-            return tuple(conn.literal(arg) for arg in args)
+            return tuple(conn.escape(arg) for arg in args)
         elif isinstance(args, dict):
             if PY2:
                 args = {ensure_bytes(key): ensure_bytes(val) for
                         (key, val) in args.items()}
-            return {key: conn.literal(val) for (key, val) in args.items()}
+            return {key: conn.escape(val) for (key, val) in args.items()}
         else:
             # If it's not a dictionary let's try escaping it anyways.
             # Worst case it will throw a Value error

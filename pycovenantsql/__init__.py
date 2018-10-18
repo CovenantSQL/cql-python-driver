@@ -10,7 +10,7 @@ else:
 
 threadsafety = 1
 apilevel = "2.0"
-paramstyle = "qmark"
+paramstyle = "pyformat"
 
 
 class DBAPISet(frozenset):

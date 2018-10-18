@@ -4,8 +4,11 @@ import requests
 from . import err
 from .cursors import Cursor
 from .optionfile import Parser
+from . import converters
 from ._compat import PY2, range_type, text_type, str_type, JYTHON, IRONPYTHON
 
+
+DEBUG = False
 
 class Connection(object):
     """
@@ -24,9 +27,6 @@ class Connection(object):
     :param write_timeout: The timeout for writing to the connection in seconds (default: None - no timeout)
     :param read_default_file:
         Specifies  my.cnf file to read these parameters from under the [client] section.
-    :param use_unicode:
-        Whether or not to default to unicode strings.
-        This option defaults to true for Py3k.
     :param cursorclass: Custom cursor class to use.
     :param connect_timeout: Timeout before throwing an exception when connecting.
         (default: 10, min: 1, max: 31536000)
@@ -43,7 +43,7 @@ class Connection(object):
     _closed = False
 
     def __init__(self, dsn=None, host=None, port=0, key=None, database=None,
-                 https_pem=None, read_default_file=None, use_unicode=None,
+                 https_pem=None, read_default_file=None,
                  cursorclass=Cursor, init_command=None,
                  connect_timeout=10, read_default_group=None,
                  autocommit=False, defer_connect=False,
@@ -52,8 +52,6 @@ class Connection(object):
         self._resp = None
 
         # 1. pre process params in init
-        if use_unicode is None and sys.version_info[0] > 2:
-            use_unicode = True
         self.encoding = 'utf8'
 
         # 2. read config params from file(if init is None)
@@ -111,9 +109,6 @@ class Connection(object):
             raise ValueError("write_timeout should be >= 0")
         self._write_timeout = write_timeout
 
-        if use_unicode is not None:
-            self.use_unicode = use_unicode
-
         self.cursorclass = cursorclass
 
         self._result = None
@@ -147,6 +142,11 @@ class Connection(object):
         self._sock = None
         self._closed = True
 
+    @property
+    def open(self):
+        """Return True if the connection is open"""
+        return not self._closed
+
     def commit(self):
         """
         Commit changes to stable storage.
@@ -179,11 +179,8 @@ class Connection(object):
             return cursor(self)
         return self.cursorclass(self)
 
-
     # The following methods are INTERNAL USE ONLY (called from Cursor)
     def query(self, sql):
-        # if DEBUG:
-        #     print("DEBUG: sending query:", sql)
         if isinstance(sql, text_type) and not (JYTHON or IRONPYTHON):
             if PY2:
                 sql = sql.encode(self.encoding)
@@ -210,6 +207,8 @@ class Connection(object):
 
         # post request
         data = {"database": self.database,"query": sql}
+        if DEBUG:
+            print("DEBUG: sending query:", sql)
         try:
             if sql.lower().lstrip().startswith(b'select'):
                 self._resp = self._session.post(self._query_uri, data=data)
@@ -223,6 +222,24 @@ class Connection(object):
         except Exception as error:
             raise err.InterfaceError("Proxy return invalid data", self._resp.reason)
 
+
+    def escape(self, obj, mapping=None):
+        """Escape whatever value you pass to it.
+
+        Non-standard, for internal use; do not use this in your applications.
+        """
+        if isinstance(obj, str_type):
+            return "'" + self.escape_string(obj) + "'"
+        if isinstance(obj, (bytes, bytearray)):
+            ret = self._quote_bytes(obj)
+            return ret
+        return converters.escape_item(obj, mapping=mapping)
+
+    def escape_string(self, s):
+        return converters.escape_string(s)
+
+    def _quote_bytes(self, s):
+        return converters.escape_bytes(s)
 
     def _read_query_result(self):
         self._result = None
