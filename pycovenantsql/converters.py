@@ -83,10 +83,6 @@ if PY2:
         value = value.replace('"', '\\"')
         return value
 
-    def escape_bytes_prefixed(value, mapping=None):
-        assert isinstance(value, (bytes, bytearray))
-        return b"_binary'%s'" % escape_string(value)
-
     def escape_bytes(value, mapping=None):
         assert isinstance(value, (bytes, bytearray))
         return b"'%s'" % escape_string(value)
@@ -99,9 +95,6 @@ else:
     # Workaround is str.decode('latin1') then translate 0x80-0xff into 0udc80-0udcff.
     # We can escape special chars and surrogateescape at once.
     _escape_bytes_table = _escape_table + [chr(i) for i in range(0xdc80, 0xdd00)]
-
-    def escape_bytes_prefixed(value, mapping=None):
-        return "_binary'%s'" % value.decode('latin1').translate(_escape_bytes_table)
 
     def escape_bytes(value, mapping=None):
         return "'%s'" % value.decode('latin1').translate(_escape_bytes_table)

@@ -9,6 +9,7 @@ from ._compat import PY2, range_type, text_type, str_type, JYTHON, IRONPYTHON
 
 
 DEBUG = False
+VERBOSE = False
 
 class Connection(object):
     """
@@ -85,7 +86,13 @@ class Connection(object):
 
         self._query_uri = "https://" + self.host + ":" + str(self.port) + "/v1/query"
         self._exec_uri = "https://" + self.host + ":" + str(self.port) + "/v1/exec"
-
+        if VERBOSE:
+            try:
+                import http.client as http_client
+            except ImportError:
+                # Python 2
+                import httplib as http_client
+            http_client.HTTPConnection.debuglevel = 1
         self._session = requests.Session()
         self._session.verify = False
         requests.packages.urllib3.disable_warnings()

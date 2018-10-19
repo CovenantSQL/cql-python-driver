@@ -2,6 +2,10 @@ import sys
 from ._compat import PY2
 from .converters import escape_dict, escape_sequence, escape_string
 from .constants import FIELD_TYPE
+from .err import (
+    Warning, Error, InterfaceError, DataError,
+    DatabaseError, OperationalError, IntegrityError, InternalError,
+    NotSupportedError, ProgrammingError)
 
 VERSION = (0, 0, 1, None)
 if VERSION[3] is not None:

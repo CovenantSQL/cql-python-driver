@@ -5,6 +5,7 @@ from pycovenantsql._compat import PYPY, JYTHON, IRONPYTHON
 
 import pycovenantsql
 pycovenantsql.connections.DEBUG = True
+pycovenantsql.connections.VERBOSE = False
 #pymysql._auth.DEBUG = True
 
 if not (PYPY or JYTHON or IRONPYTHON):
