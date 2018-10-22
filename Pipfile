@@ -10,6 +10,7 @@ requests = "*"
 pylint = "*"
 "unittest2" = "*"
 coverage = "*"
+peewee = "*"
 
 [requires]
 python_version = "3.7"
