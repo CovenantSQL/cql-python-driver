@@ -93,13 +93,11 @@ class Connection(object):
                 # Python 2
                 import httplib as http_client
             http_client.HTTPConnection.debuglevel = 1
-        self._session = requests.Session()
-        self._session.verify = False
         requests.packages.urllib3.disable_warnings()
         if https_pem:
-            self._session.cert = (https_pem, self.key)
+            self._cert = (https_pem, self.key)
         else:
-            self._session.cert = self.key
+            self._cert = self.key
 
         if not (0 < connect_timeout <= 31536000):
             raise ValueError("connect_timeout should be >0 and <=31536000")
@@ -212,9 +210,9 @@ class Connection(object):
             if (sql.lower().lstrip().startswith(b'select') or
                 sql.lower().lstrip().startswith(b'show') or
                 sql.lower().lstrip().startswith(b'desc')):
-                self._resp = self._session.post(self._query_uri, data=data)
+                self._resp = self._send(self._query_uri, data=data)
             else:
-                self._resp = self._session.post(self._exec_uri, data=data)
+                self._resp = self._send(self._exec_uri, data=data)
         except Exception as error:
             raise err.InterfaceError("Request proxy err: %s" % error)
 
@@ -225,6 +223,11 @@ class Connection(object):
         except Exception as error:
             raise err.InterfaceError("Proxy return invalid data", self._resp.reason)
 
+    def _send(self, uri, data):
+        session = requests.Session()
+        session.verify = False
+        session.cert = self._cert
+        return session.post(uri, data)
 
     def escape(self, obj, mapping=None):
         """Escape whatever value you pass to it.
