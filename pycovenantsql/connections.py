@@ -209,7 +209,9 @@ class Connection(object):
         if DEBUG:
             print("DEBUG: sending query:", sql)
         try:
-            if sql.lower().lstrip().startswith(b'select'):
+            if (sql.lower().lstrip().startswith(b'select') or
+                sql.lower().lstrip().startswith(b'show') or
+                sql.lower().lstrip().startswith(b'desc')):
                 self._resp = self._session.post(self._query_uri, data=data)
             else:
                 self._resp = self._session.post(self._exec_uri, data=data)
@@ -218,6 +220,8 @@ class Connection(object):
 
         try:
             self._resp_json = self._resp.json()
+            if DEBUG:
+                print("DEBUG: response:", self._resp_json)
         except Exception as error:
             raise err.InterfaceError("Proxy return invalid data", self._resp.reason)
 

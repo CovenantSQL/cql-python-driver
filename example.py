@@ -22,6 +22,10 @@ print(cur.description)
 #        )''')
 cur.execute("replace into test_python_driver values('test'), ('test2'), ('test3'), ('test4')")
 cur.execute(" SELECT * FROM test_python_driver")
+cur.execute("desc test_python_driver")
+for row in cur:
+    print(row)
+cur.execute("show tables")
 for row in cur:
     print(row)
 
