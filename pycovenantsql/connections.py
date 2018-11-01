@@ -307,6 +307,7 @@ class CovenantSQLResult(object):
             # return from exec api, data like {'affected_rows': 4, 'last_insert_id': 4}
             self.affected_rows = data['affected_rows']
             self.insert_id = data['last_insert_id']
+            return
         rows = []
         for line in data['rows']:
             row = []
