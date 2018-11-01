@@ -300,7 +300,13 @@ class CovenantSQLResult(object):
             # exec result
             return
         # read json data
-        self.affected_rows = len(data['rows'])
+        try:
+            # return from query api, data like {'columns': ['name'], 'rows': [['test'], ['test2'], ['test3'], ['test4']], 'types': ['TEXT']}
+            self.affected_rows = len(data['rows'])
+        except:
+            # return from exec api, data like {'affected_rows': 4, 'last_insert_id': 4}
+            self.affected_rows = data['affected_rows']
+            self.insert_id = data['last_insert_id']
         rows = []
         for line in data['rows']:
             row = []
