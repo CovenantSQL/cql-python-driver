@@ -299,6 +299,7 @@ class CovenantSQLResult(object):
         if data is None:
             # exec result
             return
+
         # read json data
         try:
             # return from query api, data like {'columns': ['name'], 'rows': [['test'], ['test2'], ['test3'], ['test4']], 'types': ['TEXT']}
@@ -308,6 +309,7 @@ class CovenantSQLResult(object):
             self.affected_rows = data['affected_rows']
             self.insert_id = data['last_insert_id']
             return
+
         rows = []
         for line in data['rows']:
             row = []
