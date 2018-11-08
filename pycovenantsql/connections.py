@@ -258,7 +258,7 @@ class Connection(object):
     def _read_ok_packet(self):
         self.server_status = self._resp_json["success"]
         if not self.server_status:
-            raise err.OperationalError("Syntax error", self._resp_json["status"])
+            raise err.InternalError("InternalError: ", self._resp_json["status"])
 
         if not self._resp.ok:
             raise err.OperationalError("Proxy return false", self._resp.reason)
