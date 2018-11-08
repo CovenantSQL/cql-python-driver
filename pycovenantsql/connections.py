@@ -295,7 +295,7 @@ class CovenantSQLResult(object):
         try:
             data = self.connection._resp_json["data"]
         except:
-            raise err.InterfaceError("Unsupported response format")
+            raise err.InterfaceError("Unsupported response format: no data field")
         if data is None:
             # exec result
             return
@@ -317,3 +317,16 @@ class CovenantSQLResult(object):
                 row.append(column)
             rows.append(tuple(row))
         self.rows = tuple(rows)
+
+        try:
+            self.field_count = len(data['columns'])
+
+            description = []
+            for i in range(self.field_count):
+                fields = []
+                fields.append(data['columns'][i])
+                fields.append(data['types'][i])
+                description.append(tuple(fields))
+            self.description = tuple(description)
+        except:
+            raise err.InterfaceError("Proxy return column count and types count are not equal")
