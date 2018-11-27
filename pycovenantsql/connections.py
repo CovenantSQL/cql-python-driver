@@ -25,7 +25,7 @@ class Connection(object):
     :param key: Private key to access database.
     :param database: Database id to use. uri and database should set at least one.
     :param read_timeout: The timeout for reading from the connection in seconds (default: None - no timeout)
-    :param write_timeout: The timeout for writing to the connection in seconds (default: None - no timeout)
+    #(Not supported now):param write_timeout: The timeout for writing to the connection in seconds (default: None - no timeout)
     :param read_default_file:
         Specifies  my.cnf file to read these parameters from under the [client] section.
     :param cursorclass: Custom cursor class to use.
@@ -42,8 +42,8 @@ class Connection(object):
 
     def __init__(self, dsn=None, host=None, port=0, key=None, database=None,
                  https_pem=None, read_default_file=None,
-                 cursorclass=Cursor, connect_timeout=10, read_default_group=None,
-                 read_timeout=None, write_timeout=None):
+                 cursorclass=Cursor, connect_timeout=None, read_default_group=None,
+                 read_timeout=None):
 
         self._resp = None
 
@@ -99,15 +99,15 @@ class Connection(object):
         else:
             self._cert = self.key
 
-        if not (0 < connect_timeout <= 31536000):
-            raise ValueError("connect_timeout should be >0 and <=31536000")
-        self.connect_timeout = connect_timeout or None
+        self.timeout = None
+        if connect_timeout is not None and connect_timeout <= 0:
+            raise ValueError("connect_timeout should be >= 0")
         if read_timeout is not None and read_timeout <= 0:
             raise ValueError("read_timeout should be >= 0")
-        self._read_timeout = read_timeout
-        if write_timeout is not None and write_timeout <= 0:
-            raise ValueError("write_timeout should be >= 0")
-        self._write_timeout = write_timeout
+        #if write_timeout is not None and write_timeout <= 0:
+        #    raise ValueError("write_timeout should be >= 0")
+        if connect_timeout is not None or read_timeout is not None:
+            self.timeout = (connect_timeout, read_timeout)
 
         self.cursorclass = cursorclass
 
@@ -227,7 +227,7 @@ class Connection(object):
         session = requests.Session()
         session.verify = False
         session.cert = self._cert
-        return session.post(uri, data)
+        return session.post(uri, data, timeout=self.timeout)
 
     def escape(self, obj, mapping=None):
         """Escape whatever value you pass to it.
