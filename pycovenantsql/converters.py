@@ -50,16 +50,10 @@ def escape_float(value, mapping=None):
     return ('%.15g' % value)
 
 _escape_table = [unichr(x) for x in range(128)]
-_escape_table[0] = u'\\0'
-_escape_table[ord('\\')] = u'\\\\'
-_escape_table[ord('\n')] = u'\\n'
-_escape_table[ord('\r')] = u'\\r'
-_escape_table[ord('\032')] = u'\\Z'
-_escape_table[ord('"')] = u'\\"'
-_escape_table[ord("'")] = u"\\'"
+_escape_table[ord("'")] = u"''"
 
 def _escape_unicode(value, mapping=None):
-    """escapes *value* without adding quote.
+    """escapes *value* with adding single quote.
 
     Value should be unicode
     """

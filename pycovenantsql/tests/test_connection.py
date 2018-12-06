@@ -84,7 +84,7 @@ class TestEscape(base.PyCovenantSQLTestCase):
         con = self.connections[0]
         cur = con.cursor()
 
-        self.assertEqual(con.escape("foo'bar"), "'foo\\'bar'")
+        self.assertEqual(con.escape("foo'bar"), "'foo''bar'")
 
     def test_escape_builtin_encoders(self):
         con = self.connections[0]

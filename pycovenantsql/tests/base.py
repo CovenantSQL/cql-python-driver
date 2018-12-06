@@ -62,9 +62,7 @@ class PyCovenantSQLTestCase(unittest2.TestCase):
         """
         cursor = connection.cursor()
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            cursor.execute("drop table if exists `%s`" % (tablename,))
+        self.drop_table(connection, tablename)
         cursor.execute(ddl)
         cursor.close()
         if cleanup:
