@@ -69,6 +69,7 @@ class TestConversion(base.PyCovenantSQLTestCase):
         self.safe_create_table(
             conn, "test_string", "create table test_string (a text)")
         test_value = "I am a test string"
+        test_value = "My friends had no problem buying #bitcoin at $7K all the way to $20K. Most of them have panic sold at a loss and now won't dare to re-invest at $4K. Something tells me this cycle will repeat again at $40K to $80K per $BTC. 🤔"
 
         c.execute("insert into test_string (a) values (%s)", test_value)
         c.execute("select a from test_string")
