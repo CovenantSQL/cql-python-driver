@@ -142,9 +142,10 @@ class TestConversion(base.PyCovenantSQLTestCase):
 
         conn = self.connections[0]
         c = conn.cursor()
-        dt = datetime.datetime(2013, 11, 12, 9, 9, 9, 123450)
+        #dt = datetime.datetime(2013, 11, 12, 9, 9, 9, 123450, tzinfo=datetime.timezone(datetime.timedelta(hours=10)))
+        dt = datetime.datetime(2013, 11, 12, 9, 9, 9, 123450, tzinfo=datetime.timezone.utc)
         self.safe_create_table(
-            conn, "test_datetime", "create table test_datetime (id int, ts datetime(6))")
+            conn, "test_datetime", "create table test_datetime (id int, ts datetime)")
         c.execute(
             "insert into test_datetime values (%s, %s)",
             (1, dt)
