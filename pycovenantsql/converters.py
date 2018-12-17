@@ -155,7 +155,7 @@ def convert_datetime(obj):
 
     try:
         return arrow.get(obj).datetime
-    except ValueError as err:
+    except Exception as err:
         raise DataError("Not valid datetime struct: %s" % err)
 
 
@@ -199,8 +199,8 @@ def convert_timedelta(obj):
             microseconds = int(microseconds)
             ) * negate
         return tdelta
-    except ValueError:
-        return obj
+    except ValueError as err:
+        raise DataError("Not valid time or timedelta struct: %s" % err)
 
 def convert_time(obj):
     """Returns a TIME column as a time object:
@@ -215,9 +215,9 @@ def convert_time(obj):
         obj = obj.decode('ascii')
 
     try:
-        return arrow.get(obj).time()
-    except ValueError as err:
-        raise DataError("Not valid time struct: %s" % err)
+        return arrow.get("1970-01-01T"+obj).time()
+    except Exception:
+        return convert_timedelta(obj)
 
 def convert_date(obj):
     """Returns a DATE column as a date object:
@@ -237,7 +237,7 @@ def convert_date(obj):
         obj = obj.decode('ascii')
     try:
         return arrow.get(obj).date()
-    except ValueError as err:
+    except Exception as err:
         raise DataError("Not valid date struct: %s" % err)
 
 
@@ -267,6 +267,10 @@ def convert_characters(connection, data):
 
 def convert_column_data(column_type, column_data):
     data = column_data
+
+    # Null
+    if data is None:
+        return data
 
     if not isinstance(column_type, text_type):
         return data
