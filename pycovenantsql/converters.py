@@ -2,8 +2,10 @@ from ._compat import PY2, text_type, long_type, JYTHON, IRONPYTHON, unichr
 
 import datetime
 from decimal import Decimal
+from .err import DataError
 import re
 import time
+import arrow
 
 def escape_item(val, mapping=None):
     if mapping is None:
@@ -137,9 +139,6 @@ def _convert_second_fraction(s):
     s = s.ljust(6, '0')
     return int(s[:6])
 
-DATETIME_RE = re.compile(r"(\d{1,4})-(\d{1,2})-(\d{1,2})[T ](\d{1,2}):(\d{1,2}):(\d{1,2})(?:.(\d{1,6}))?")
-
-
 def convert_datetime(obj):
     """Returns a DATETIME or TIMESTAMP column value as a datetime object:
 
@@ -148,27 +147,17 @@ def convert_datetime(obj):
       >>> datetime_or_None('2007-02-25T23:06:20')
       datetime.datetime(2007, 2, 25, 23, 6, 20)
 
-    Illegal values are returned as None:
-
-      >>> datetime_or_None('2007-02-31T23:06:20') is None
-      True
-      >>> datetime_or_None('0000-00-00 00:00:00') is None
-      True
+    Illegal values are raise DataError
 
     """
     if not PY2 and isinstance(obj, (bytes, bytearray)):
         obj = obj.decode('ascii')
 
-    m = DATETIME_RE.match(obj)
-    if not m:
-        return convert_date(obj)
-
     try:
-        groups = list(m.groups())
-        groups[-1] = _convert_second_fraction(groups[-1])
-        return datetime.datetime(*[ int(x) for x in groups ])
-    except ValueError:
-        return convert_date(obj)
+        return arrow.get(obj).datetime
+    except ValueError as err:
+        raise DataError("Not valid datetime struct: %s" % err)
+
 
 TIMEDELTA_RE = re.compile(r"(-)?(\d{1,3}):(\d{1,2}):(\d{1,2})(?:.(\d{1,6}))?")
 
@@ -213,47 +202,22 @@ def convert_timedelta(obj):
     except ValueError:
         return obj
 
-TIME_RE = re.compile(r"(\d{1,2}):(\d{1,2}):(\d{1,2})(?:.(\d{1,6}))?")
-
-
 def convert_time(obj):
     """Returns a TIME column as a time object:
 
       >>> time_or_None('15:06:17')
       datetime.time(15, 6, 17)
 
-    Illegal values are returned as None:
+    Illegal values are returned DataError:
 
-      >>> time_or_None('-25:06:17') is None
-      True
-      >>> time_or_None('random crap') is None
-      True
-
-    Note that MySQL always returns TIME columns as (+|-)HH:MM:SS, but
-    can accept values as (+|-)DD HH:MM:SS. The latter format will not
-    be parsed correctly by this function.
-
-    Also note that MySQL's TIME column corresponds more closely to
-    Python's timedelta and not time. However if you want TIME columns
-    to be treated as time-of-day and not a time offset, then you can
-    use set this function as the converter for FIELD_TYPE.TIME.
     """
     if not PY2 and isinstance(obj, (bytes, bytearray)):
         obj = obj.decode('ascii')
 
-    m = TIME_RE.match(obj)
-    if not m:
-        return obj
-
     try:
-        groups = list(m.groups())
-        groups[-1] = _convert_second_fraction(groups[-1])
-        hours, minutes, seconds, microseconds = groups
-        return datetime.time(hour=int(hours), minute=int(minutes),
-                             second=int(seconds), microsecond=int(microseconds))
-    except ValueError:
-        return obj
-
+        return arrow.get(obj).time()
+    except ValueError as err:
+        raise DataError("Not valid time struct: %s" % err)
 
 def convert_date(obj):
     """Returns a DATE column as a date object:
@@ -272,44 +236,10 @@ def convert_date(obj):
     if not PY2 and isinstance(obj, (bytes, bytearray)):
         obj = obj.decode('ascii')
     try:
-        return datetime.date(*[ int(x) for x in obj.split('-', 2) ])
-    except ValueError:
-        return obj
+        return arrow.get(obj).date()
+    except ValueError as err:
+        raise DataError("Not valid date struct: %s" % err)
 
-
-#def convert_mysql_timestamp(timestamp):
-#    """Convert a MySQL TIMESTAMP to a Timestamp object.
-#
-#    MySQL >= 4.1 returns TIMESTAMP in the same format as DATETIME:
-#
-#      >>> mysql_timestamp_converter('2007-02-25 22:32:17')
-#      datetime.datetime(2007, 2, 25, 22, 32, 17)
-#
-#    MySQL < 4.1 uses a big string of numbers:
-#
-#      >>> mysql_timestamp_converter('20070225223217')
-#      datetime.datetime(2007, 2, 25, 22, 32, 17)
-#
-#    Illegal values are returned as None:
-#
-#      >>> mysql_timestamp_converter('2007-02-31 22:32:17') is None
-#      True
-#      >>> mysql_timestamp_converter('00000000000000') is None
-#      True
-#
-#    """
-#    if not PY2 and isinstance(timestamp, (bytes, bytearray)):
-#        timestamp = timestamp.decode('ascii')
-#    if timestamp[4] == '-':
-#        return convert_datetime(timestamp)
-#    timestamp += "0"*(14-len(timestamp)) # padding
-#    year, month, day, hour, minute, second = \
-#        int(timestamp[:4]), int(timestamp[4:6]), int(timestamp[6:8]), \
-#        int(timestamp[8:10]), int(timestamp[10:12]), int(timestamp[12:14])
-#    try:
-#        return datetime.datetime(year, month, day, hour, minute, second)
-#    except ValueError:
-#        return timestamp
 
 def convert_set(s):
     if isinstance(s, (bytes, bytearray)):
@@ -333,6 +263,22 @@ convert_bit = through
 def convert_characters(connection, data):
     if connection.use_unicode:
         data = data.decode("utf8")
+    return data
+
+def convert_column_data(column_type, column_data):
+    data = column_data
+
+    if not isinstance(column_type, text_type):
+        return data
+
+    column_type = column_type.lower().strip()
+    if column_type == 'time':
+        data = convert_time(column_data)
+    elif column_type == 'date':
+        data = convert_date(column_data)
+    elif column_type == 'datetime':
+        data = convert_datetime(column_data)
+
     return data
 
 encoders = {

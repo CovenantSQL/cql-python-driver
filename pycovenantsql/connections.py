@@ -310,17 +310,9 @@ class CovenantSQLResult(object):
             self.insert_id = data['last_insert_id']
             return
 
-        rows = []
-        for line in data['rows']:
-            row = []
-            for column in line:
-                row.append(column)
-            rows.append(tuple(row))
-        self.rows = tuple(rows)
+        self.field_count = len(data['columns'])
 
         try:
-            self.field_count = len(data['columns'])
-
             description = []
             for i in range(self.field_count):
                 fields = []
@@ -328,5 +320,15 @@ class CovenantSQLResult(object):
                 fields.append(data['types'][i])
                 description.append(tuple(fields))
             self.description = tuple(description)
-        except:
-            raise err.InterfaceError("Proxy return column count and types count are not equal")
+
+            rows = []
+            for line in data['rows']:
+                row = []
+                for i in range(self.field_count):
+                    column_data = converters.convert_column_data(self.description[i][1], line[i])
+                    row.append(column_data)
+                rows.append(tuple(row))
+            self.rows = tuple(rows)
+        except Exception as error:
+            raise err.InterfaceError("Read proxy return data err:" % error)
+
