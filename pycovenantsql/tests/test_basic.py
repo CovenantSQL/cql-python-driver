@@ -268,11 +268,6 @@ create table test_json (
         res = cur.fetchone()[0]
         self.assertEqual(json.loads(res), json.loads(json_str))
 
-        cur.execute("SELECT CAST(%s AS JSON) AS x", (json_str,))
-        res = cur.fetchone()[0]
-        self.assertEqual(json.loads(res), json.loads(json_str))
-
-
 class TestBulkInserts(base.PyCovenantSQLTestCase):
 
     cursor_type = pycovenantsql.cursors.DictCursor

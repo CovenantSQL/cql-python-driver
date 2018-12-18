@@ -91,7 +91,7 @@ class TestEscape(base.PyCovenantSQLTestCase):
         cur = con.cursor()
 
         val = datetime.datetime(2012, 3, 4, 5, 6)
-        self.assertEqual(con.escape(val), "'2012-03-04 05:06:00'")
+        self.assertEqual(con.escape(val), "'2012-03-04 05:06:00.000000'")
 
     def test_escape_custom_object(self):
         con = self.connections[0]
