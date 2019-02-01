@@ -83,9 +83,20 @@ class Connection(object):
         self.port = port or 11108
         self.key = key
         self.database = database
+        if https_pem:
+            self._cert = (https_pem, self.key)
+        elif self.key:
+            self._cert = self.key
+        else:
+            self._cert = None
 
-        self._query_uri = "https://" + self.host + ":" + str(self.port) + "/v1/query"
-        self._exec_uri = "https://" + self.host + ":" + str(self.port) + "/v1/exec"
+        if self._cert:
+            self._query_uri = "https://" + self.host + ":" + str(self.port) + "/v1/query"
+            self._exec_uri = "https://" + self.host + ":" + str(self.port) + "/v1/exec"
+        else:
+            self._query_uri = "http://" + self.host + ":" + str(self.port) + "/v1/query"
+            self._exec_uri = "http://" + self.host + ":" + str(self.port) + "/v1/exec"
+
         if VERBOSE:
             try:
                 import http.client as http_client
@@ -94,10 +105,6 @@ class Connection(object):
                 import httplib as http_client
             http_client.HTTPConnection.debuglevel = 1
         requests.packages.urllib3.disable_warnings()
-        if https_pem:
-            self._cert = (https_pem, self.key)
-        else:
-            self._cert = self.key
 
         self.timeout = None
         if connect_timeout is not None and connect_timeout <= 0:
@@ -226,7 +233,8 @@ class Connection(object):
     def _send(self, uri, data):
         session = requests.Session()
         session.verify = False
-        session.cert = self._cert
+        if self._cert:
+            session.cert = self._cert
         return session.post(uri, data, timeout=self.timeout)
 
     def escape(self, obj, mapping=None):
