@@ -26,7 +26,7 @@ Requirements
 
 * CovenantSQL Proxy Server:
 
-  - CovenantSQL_ >= 0.0.2
+  - CovenantSQL_ >= 0.0.3
 
 
 .. _CPython: https://www.python.org/
