@@ -7,7 +7,7 @@ with io.open('./README.rst', encoding='utf-8') as f:
 
 setup(
     name="PyCovenantSQL",
-    version="0.1.2",
+    version="0.1.3",
     url='https://github.com/CovenantSQL/python-driver/',
     project_urls={
         "Documentation": "https://pycovenantsql.readthedocs.io/",
@@ -17,6 +17,7 @@ setup(
     packages=find_packages(exclude=['tests*', 'pycovenantsql.tests*']),
     install_requires=[
         "requests",
+        "arrow",
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
