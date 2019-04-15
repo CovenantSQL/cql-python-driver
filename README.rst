@@ -1,5 +1,5 @@
 PyCovenantSQL
-=======
+===============
 
 .. contents:: Table of Contents
    :local:
@@ -20,11 +20,12 @@ Requirements
   - CPython_ : 2.7 and >= 3.4
   - PyPy_ : Latest version
 
-* HTTP Client:
+* Packages:
 
   - Requests_ >= 2.19
+  - Arrow_ >= 0.13
 
-* CovenantSQL Proxy Server:
+* CovenantSQL Adapter Server:
 
   - CovenantSQL_ >= 0.0.3
 
@@ -32,6 +33,7 @@ Requirements
 .. _CPython: https://www.python.org/
 .. _PyPy: https://pypy.org/
 .. _Requests: http://www.python-requests.org/
+.. _Arrow: https://github.com/crsmithdev/arrow
 .. _CovenantSQL: https://github.com/CovenantSQL/CovenantSQL
 
 
@@ -49,12 +51,12 @@ You can install it with pip::
 Documentation
 -------------
 
-Documentation is available online: https://PyCovenantSQL.readthedocs.io/
+Documentation is available online: http://developers.covenantsql.io/
 
-Key file and database_id can get from: https://testnet.covenantsql.io/quickstart
+Key file and database_id can get from: http://developers.covenantsql.io/docs/quickstart
 
-For support, please refer to the `StackOverflow
-<https://stackoverflow.com/questions/tagged/PyCovenantSQL>`_.
+For support, please fire a issue at `Github
+<https://github.com/CovenantSQL/CovenantSQL/issues/new>`_.
 
 Example
 -------
