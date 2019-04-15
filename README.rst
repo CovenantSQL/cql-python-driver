@@ -74,7 +74,7 @@ The following examples make use of a simple table
 
 .. code:: python
 
-    import pycovenantsql.cursors
+    import pycovenantsql
 
     # user key file location
     key = '/path/to/private.key'
