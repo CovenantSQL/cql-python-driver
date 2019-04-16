@@ -53,7 +53,7 @@ Documentation
 
 Documentation is available online: http://developers.covenantsql.io/
 
-Key file and database_id can get from: http://developers.covenantsql.io/docs/quickstart
+Key file and dsn can get from: http://developers.covenantsql.io/docs/quickstart
 
 For support, please fire a issue at `Github
 <https://github.com/CovenantSQL/CovenantSQL/issues/new>`_.
@@ -76,14 +76,13 @@ The following examples make use of a simple table
 
     import pycovenantsql
 
-    # user key file location
-    key = '/path/to/private.key'
 
-    # Connect to the database
-    connection = pycovenantsql.connect(host='localhost',
+    # Connect to the database with dsn
+    # host and port are your local CovenantSQL Adapter server
+    connection = pycovenantsql.connect(
+                                 dsn='covenantsql://your_database_id',
+                                 host='localhost',
                                  port=11108,
-                                 key=key,
-                                 database='database_id'
                                  )
 
     try:

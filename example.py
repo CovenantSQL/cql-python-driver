@@ -6,8 +6,8 @@ import pycovenantsql
 
 print(pycovenantsql.get_client_info())
 
-conn = pycovenantsql.connect(dsn='covenant://0a10b74439f2376d828c9a70fd538dac4b69e0f4065424feebc0f5dbc8b34872',
-        host="adp00.cn.gridb.io", port=7784, database='0a10b74439f2376d828c9a70fd538dac4b69e0f4065424feebc0f5dbc8b34872')
+conn = pycovenantsql.connect(dsn='covenantsql://0a10b74439f2376d828c9a70fd538dac4b69e0f4065424feebc0f5dbc8b34872',
+        host="adp00.cn.gridb.io", port=7784)
 
 cur = conn.cursor()
 print(cur.description)

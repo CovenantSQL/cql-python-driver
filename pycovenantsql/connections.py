@@ -1,6 +1,7 @@
 import sys
 import os
 import requests
+from urllib.parse import urlparse
 from . import err
 from .cursors import Cursor
 from .optionfile import Parser
@@ -83,6 +84,12 @@ class Connection(object):
         self.port = port or 11108
         self.key = key
         self.database = database
+        if self.dsn:
+            u = urlparse(self.dsn)
+            scheme = u.scheme.lower()
+            if scheme == "covenantsql" or scheme == "cql":
+                if u.hostname:
+                    self.database = u.hostname
         if https_pem:
             self._cert = (https_pem, self.key)
         elif self.key:
