@@ -1,7 +1,6 @@
 import datetime
 import sys
 import time
-import unittest2
 import pycovenantsql
 from pycovenantsql.tests import base
 from pycovenantsql._compat import text_type
@@ -41,6 +40,7 @@ class TempUser:
         if self._created:
             self._c.execute("DROP USER %s" % self._user)
 
+
 class TestConnection(base.PyCovenantSQLTestCase):
 
     def test_largedata(self):
@@ -69,6 +69,7 @@ class TestConnection(base.PyCovenantSQLTestCase):
             cur.execute('select count(*) from test')
             self.assertEqual(1,cur.fetchone()[0])
             cur.execute('drop table test')
+
 
 # A custom type and function to escape it
 class Foo(object):
