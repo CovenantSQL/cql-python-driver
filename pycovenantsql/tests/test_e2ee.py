@@ -60,8 +60,8 @@ class TestE2ee(unittest.TestCase):
         for case in cases:
             print("Case: #" + str(i))
             i += 1
-            enc = encrypt(unhexlify(case["raw"]), case["pass"])
-            dec = decrypt(enc, case["pass"])
+            enc = encrypt(unhexlify(case["raw"]), case["pass"].encode())
+            dec = decrypt(enc, case["pass"].encode())
             self.assertEqual(unhexlify(case["raw"]), dec)
-            dec2 = decrypt(unhexlify(case["possibleEncrypted"]), case["pass"])
+            dec2 = decrypt(unhexlify(case["possibleEncrypted"]), case["pass"].encode())
             self.assertEqual(unhexlify(case["raw"]), dec2)
