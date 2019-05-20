@@ -18,6 +18,7 @@ setup(
     install_requires=[
         "requests",
         "arrow",
+        "pycrypto",
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -32,10 +33,9 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Database',
     ],
-    keywords=("CovenantSQL","driver","database"),
+    keywords=("CovenantSQL", "driver", "database"),
 
-    author = "laodouya",
-    author_email = "jin.xu@CovenantSQL.io",
-    license = "Apache 2.0 Licence",
+    author="laodouya",
+    author_email="jin.xu@CovenantSQL.io",
+    license="Apache 2.0 Licence",
 )
-
