@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import unittest
-from pycovenantsql.e2ee import encrypt, decrypt
+from pycovenantsql.e2ee import encrypt, decrypt, unpad, PaddingError
 from binascii import hexlify, unhexlify
 
 # Test cases for all implementations.
@@ -65,3 +65,16 @@ class TestE2ee(unittest.TestCase):
             self.assertEqual(unhexlify(case["raw"]), dec)
             dec2 = decrypt(unhexlify(case["possibleEncrypted"]), case["pass"].encode())
             self.assertEqual(unhexlify(case["raw"]), dec2)
+
+    def test_unpad_error(self):
+        self.assertEqual(
+            unpad(unhexlify("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa01")),
+            unhexlify("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        )
+        self.assertEqual(
+            unpad(unhexlify("aaaaaaaaaaaaaaaaaaaaaaaaaaaa0202")),
+            unhexlify("aaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        )
+        self.assertRaisesRegex(PaddingError, "unexpected padding char", unpad, unhexlify("aaaaaaaaaaaaaaaaaaaaaaaaaaaa0102"))
+        self.assertRaisesRegex(PaddingError, "padding length > 16", unpad, unhexlify("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+        self.assertRaisesRegex(PaddingError, "empty input", unpad, unhexlify(""))

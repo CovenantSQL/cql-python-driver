@@ -5,13 +5,9 @@ from binascii import hexlify, unhexlify
 
 
 BLOCK_SIZE = AES.block_size  # Bytes
-pad = lambda s: s + ((BLOCK_SIZE - len(s) % BLOCK_SIZE) *
-                     chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)).encode('utf-8')
-
-
-unpad = lambda s: s[:-ord(s[len(s) - 1:])]
 
 salt = unhexlify("3fb8877d37fdc04e4a4765EFb8ab7d36")
+
 
 class PaddingError(Exception):
     """Exception raised for errors in the padding.
@@ -23,19 +19,21 @@ class PaddingError(Exception):
     def __init__(self, message):
         self.message = message
 
+pad = lambda s: s + ((BLOCK_SIZE - len(s) % BLOCK_SIZE) *
+                     chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)).encode('utf-8')
 
 def unpad(s):
-    inLen = len(s)
-    if inLen == 0:
+    in_len = len(s)
+    if in_len == 0:
         raise PaddingError("empty input")
-    padChar = s[-1]
-    padLen = ord(s[inLen-1:])
-    if padLen > BLOCK_SIZE:
+    pad_char = s[-1]
+    pad_len = ord(s[in_len-1:])
+    if pad_len > BLOCK_SIZE:
         raise PaddingError("padding length > 16")
-    for i in s[inLen-padLen:]:
-        if i != padChar:
-            raise PaddingError("unknown padding char")
-    return s[:-padLen]
+    for i in s[in_len-pad_len:]:
+        if i != pad_char:
+            raise PaddingError("unexpected padding char")
+    return s[:-pad_len]
 
 
 # kdf does 2 times sha256 and takes the first 16 bytes
