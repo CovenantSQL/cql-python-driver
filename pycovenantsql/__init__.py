@@ -6,7 +6,7 @@ from .err import (
     DatabaseError, OperationalError, IntegrityError, InternalError,
     NotSupportedError, ProgrammingError)
 
-VERSION = (0, 1, 4, None)
+VERSION = (0, 1, 5, None)
 if VERSION[3] is not None:
     VERSION_STRING = "%d.%d.%d_%s" % VERSION
 else:
