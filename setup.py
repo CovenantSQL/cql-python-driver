@@ -8,7 +8,7 @@ with io.open('./README.rst', encoding='utf-8') as f:
 setup(
     name="PyCovenantSQL",
     version="0.1.4",
-    url='https://github.com/CovenantSQL/python-driver/',
+    url='https://github.com/CovenantSQL/cql-python-driver/',
     project_urls={
         "Documentation": "https://pycovenantsql.readthedocs.io/",
     },
